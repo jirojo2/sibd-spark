@@ -18,12 +18,12 @@ object SongRecommender {
       System.exit(1)
     }
 
-    val userID: Int = args[0].toInt
+    val userID: Int = args(0).toInt
 
     val fsBase = "hdfs:///user/josi/data/"
     val rawUserArtistData = spark.read.textFile(fsBase + "user_artist_data.txt")
     val rawArtistData = spark.read.textFile(fsBase + "artist_data.txt")
-    val rawArtistAlias = spark.read .textFile(fsBase + "artist_alias.txt")
+    val rawArtistAlias = spark.read.textFile(fsBase + "artist_alias.txt")
 
     val recommender = new SongRecommender(spark)
 
@@ -77,11 +77,11 @@ class SongRecommender(private val spark: SparkSession) {
 
   def recommend(model: ALSModel, userID: Int, howMany: Int, rawArtistData: Dataset[String]): DataFrame = {
     val toRecommend = model.itemFactors.select($"id".as("artist")).withColumn("user", lit(userID))
-    val topRecommendations = model.transform(toRecommend).select("artist", "prediction").orderBy($"prediction".desc).limit(howMany)
+    val topRecommendations = model.transform(toRecommend).select("artist", "prediction").orderBy($"prediction".desc).limit(howMany+1)
 
     val recommendedArtistIDs = topRecommendations.select("artist").as[Int].collect()
     val artistByID = buildArtistByID(rawArtistData)
-    artistByID.join(spark.createDataset(recommendedArtistIDs).toDF("id"), "id").select("name")
+    artistByID.join(spark.createDataset(recommendedArtistIDs).toDF("id"), "id").select("name").filter(!$"name".contains("[unknown]")).limit(howMany)
   }
 
   private def buildArtistByID(rawArtistData: Dataset[String]): DataFrame = {
