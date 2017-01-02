@@ -1,0 +1,5 @@
+recommender-spark/.idea/
+recommender-spark/data/
+recommender-spark/project/
+recommender-spark/target/
+recommender-spark/spark-warehouse/
