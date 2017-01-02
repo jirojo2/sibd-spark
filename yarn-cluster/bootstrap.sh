@@ -1,20 +1,11 @@
 #!/bin/bash
 
-: ${HADOOP_PREFIX:=/usr/local/hadoop}
+service ssh start
 
-$HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-
-rm /tmp/*.pid
-
-service sshd start
+$HADOOP_PREFIX/sbin/start-dfs.sh
 
 if [[ $1 = "-namenode" || $2 = "-namenode" ]]; then
-  $HADOOP_PREFIX/sbin/start-dfs.sh
   $HADOOP_PREFIX/sbin/start-yarn.sh
-fi
-
-if [[ $1 = "-datanode" || $2 = "-datanode" ]]; then
-  $HADOOP_PREFIX/sbin/start-dfs.sh
 fi
 
 if [[ $1 = "-d" || $2 = "-d" ]]; then

@@ -35,12 +35,11 @@ $HADOOP_HOME/bin/hdfs dfs -put data /user/josi
 ## Launch Spark job into YARN
 
 ```bash
-USER_ID=2093760
-$SPARK_HOME/bin/spark-submit \
+USER_ID=2093760 $SPARK_HOME/bin/spark-submit \
     --master yarn \
     --deploy-mode cluster \
-    --driver-memory 6g \
-    --executor-memory 6g \
+    --driver-memory 3g \
+    --executor-memory 2g \
     --executor-cores 2 \
     --queue default \
     target/scala-2.11/spark-recommender_2.11-1.0.jar \
