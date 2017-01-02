@@ -59,5 +59,5 @@ $HADOOP_HOME/sbin/stop-dfs.sh
 1. [https://github.com/sryza/aas/tree/master/ch03-recommender](https://github.com/sryza/aas/tree/master/ch03-recommender)
 2. [http://nordicapis.com/building-a-rest-api-in-java-scala-using-play-framework-2-part-1/](http://nordicapis.com/building-a-rest-api-in-java-scala-using-play-framework-2-part-1/)
 3. [http://henningpetersen.com/post/22/running-apache-spark-jobs-from-applications](http://henningpetersen.com/post/22/running-apache-spark-jobs-from-applications)
-4. [http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_Single_Node]()http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_Single_Node
+4. [http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_Single_Node](http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_Single_Node)
 5. [http://spark.apache.org/docs/latest/mllib-collaborative-filtering.html](http://spark.apache.org/docs/latest/mllib-collaborative-filtering.html)
