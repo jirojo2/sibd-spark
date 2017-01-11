@@ -19,3 +19,5 @@ services:
       - '8040:8040'
       - '8042:8042'
       - '49707:49707'
+  slave:
+    build: yarn-cluster/

@@ -11,7 +11,6 @@ RUN chmod 600 /root/.ssh/config; \
     chown root:root /root/.ssh/config
 
 # hadoop
-ADD /opt/hadoop-2.7.3 /opt/hadoop
 RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz | tar -xz -C /opt/
 RUN cd /opt && ln -s ./hadoop-2.7.3 hadoop
 
@@ -28,6 +27,12 @@ RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=/usr/lib/jvm/java-8-openjd
 RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 
 RUN $HADOOP_PREFIX/bin/hdfs namenode -format
+
+# spark
+RUN curl -s http://www.eu.apache.org/dist/spark/spark-2.1.0/spark-2.1.0-bin-hadoop2.7.tgz | tar -xz -C /opt/
+RUN cd /opt && ln -s ./spark-2.1.0-bin-hadoop2.7 spark
+
+ENV SPARK_HOME /opt/spark
 
 # Hdfs ports
 EXPOSE 50010 50020 50070 50075 50090
