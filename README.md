@@ -53,6 +53,32 @@ $HADOOP_HOME/sbin/stop-yarn.sh
 $HADOOP_HOME/sbin/stop-dfs.sh
 ```
 
+## Docker Swarm example
+
+Assuming we have docker engine in this node, and we want to provision a swarm cluster:
+
+```bash
+docker run swarm create
+# copy generated token (UUID)
+```
+
+Now we provision 3 vms with docker and a virtualbox driver
+(change for other provision methods or virtualization technologies)
+
+```bash
+docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-master --swarm-discovery token://<TOKEN> swarm-manager
+docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-discovery token://<TOKEN> swarm-node-01
+docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-discovery token://<TOKEN> swarm-node-02
+```
+
+In order to connect to a node of the cluster:
+
+```bash
+eval "$(docker-machine env --swarm swarm-manager)"
+```
+
+More info in [https://docs.docker.com/swarm/provision-with-machine/](https://docs.docker.com/swarm/provision-with-machine/)
+
 ## References
 
 1. [https://github.com/sryza/aas/tree/master/ch03-recommender](https://github.com/sryza/aas/tree/master/ch03-recommender)
@@ -60,3 +86,4 @@ $HADOOP_HOME/sbin/stop-dfs.sh
 3. [http://henningpetersen.com/post/22/running-apache-spark-jobs-from-applications](http://henningpetersen.com/post/22/running-apache-spark-jobs-from-applications)
 4. [http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_Single_Node](http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_Single_Node)
 5. [http://spark.apache.org/docs/latest/mllib-collaborative-filtering.html](http://spark.apache.org/docs/latest/mllib-collaborative-filtering.html)
+6. [https://docs.docker.com/swarm/provision-with-machine/](https://docs.docker.com/swarm/provision-with-machine/)

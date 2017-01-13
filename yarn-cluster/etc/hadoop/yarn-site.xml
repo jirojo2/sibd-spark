@@ -30,21 +30,12 @@
   </property>
 
   <property>
-    <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value>512</value>
-  </property>
-  <property>
-    <name>yarn.scheduler.minimum-allocation-mb</name>
-    <value>1024</value>
-  </property>
-
-  <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value>1024</value>
+    <value>3074</value>
   </property>
   <property>
     <name>yarn.nodemanager.resource.cpu-vcores</name>
-    <value>2</value>
+    <value>1</value>
   </property>
 
   <property>
