@@ -1,5 +1,4 @@
-Recommender
-===========
+# Recommender
 
 José Ignacio Rojo Rivero
 
@@ -12,6 +11,31 @@ In order to build Spark 2.1.0 with support for this, issue the following build c
 ```bash
 export MAVEN_OPTS="-Xmx2g -XX:ReservedCodeCacheSize=512m"
 ./build/mvn -Pnetlib-lgpl -Pyarn -Phadoop-2.7 -Dhadoop.version=2.7.3 -DskipTests clean package
+```
+
+Or add netlib dependency:
+
+```bash
+libraryDependencies += "com.github.fommil.netlib" % "all" % "1.1.2"
+```
+
+And finally, install openblas lib for your platform.
+
+```bash
+sudo apt-get install libopenblas-dev
+```
+
+## Launch local Spark job
+
+Execute the steps as in Launch local YARN cluster, but it is not necesary to start yarn.
+Then execute the following command, with master local[*]
+
+```bash
+$SPARK_HOME/bin/spark-submit \
+    --master 'local[*]' \
+    --driver-memory 3g \
+    target/scala-2.11/spark-recommender_2.11-1.0.jar \
+    2093760
 ```
 
 ## Launch local YARN cluster
@@ -27,15 +51,15 @@ $HADOOP_HOME/sbin/start-yarn.sh
 Put data into HDFS
 
 ```bash
-$HADOOP_HOME/bin/hdfs dfs -mkdir /user
-$HADOOP_HOME/bin/hdfs dfs -mkdir /user/josi
+sudo $HADOOP_HOME/bin/hdfs dfs -mkdir -p /user/josi
+sudo $HADOOP_HOME/bin/hdfs dfs -chown josi /user/josi
 $HADOOP_HOME/bin/hdfs dfs -put data /user/josi
 ```
 
 ## Launch Spark job into YARN
 
 ```bash
-USER_ID=2093760 $SPARK_HOME/bin/spark-submit \
+$SPARK_HOME/bin/spark-submit \
     --master yarn \
     --deploy-mode cluster \
     --driver-memory 3g \
@@ -43,7 +67,7 @@ USER_ID=2093760 $SPARK_HOME/bin/spark-submit \
     --executor-cores 2 \
     --queue default \
     target/scala-2.11/spark-recommender_2.11-1.0.jar \
-    $USER_ID
+    2093760
 ```
 
 ## Stop local YARN cluster
@@ -66,9 +90,26 @@ Now we provision 3 vms with docker and a virtualbox driver
 (change for other provision methods or virtualization technologies)
 
 ```bash
-docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-master --swarm-discovery token://<TOKEN> swarm-manager
-docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-discovery token://<TOKEN> swarm-node-01
-docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-discovery token://<TOKEN> swarm-node-02
+docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-master --swarm-discovery token://$SWARM_CLUSTER_TOKEN swarm-manager
+docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-discovery token://$SWARM_CLUSTER_TOKEN swarm-node-01
+docker-machine create -d virtualbox --virtualbox-memory 4096 --swarm --swarm-discovery token://$SWARM_CLUSTER_TOKEN swarm-node-02
+```
+
+With KVM it would be like this:
+
+Install kvm driver for machine:
+
+```bash
+curl -L https://github.com/dhiltgen/docker-machine-kvm/releases/download/v0.7.0/docker-machine-driver-kvm > /usr/local/bin/docker-machine-driver-kvm
+chmod +x /usr/local/bin/docker-machine-driver-kvm
+```
+
+Provision nodes:
+
+```bash
+docker-machine create -d kvm --kvm-memory 4096 --kvm-cpu-count 2 --swarm --swarm-master --swarm-discovery token://$SWARM_CLUSTER_TOKEN swarm-manager
+docker-machine create -d kvm --kvm-memory 4096 --kvm-cpu-count 2 --swarm --swarm-discovery token://$SWARM_CLUSTER_TOKEN swarm-node-01
+docker-machine create -d kvm --kvm-memory 4096 --kvm-cpu-count 2 --swarm --swarm-discovery token://$SWARM_CLUSTER_TOKEN swarm-node-02
 ```
 
 In order to connect to a node of the cluster:
@@ -78,6 +119,65 @@ eval "$(docker-machine env --swarm swarm-manager)"
 ```
 
 More info in [https://docs.docker.com/swarm/provision-with-machine/](https://docs.docker.com/swarm/provision-with-machine/)
+
+### Setup multi-host network
+
+Install consult in `swarm-keystore`:
+
+```bash
+docker-machine create -d kvm swarm-keystore
+eval $(docker-machine env swarm-keystore)
+docker run -d -p "8500:8500" -h "consul" progrium/consul -server -bootstrap
+```
+
+Create swarm cluster:
+
+```bash
+docker-machine create \
+    -d kvm --kvm-memory 4096 --kvm-cpu-count 2 \
+    --swarm --swarm-master \
+    --swarm-discovery="consul://$(docker-machine ip swarm-keystore):8500" \
+    --engine-opt="cluster-store=consul://$(docker-machine ip swarm-keystore):8500" \
+    --engine-opt="cluster-advertise=eth1:2376" \
+    swarm-manager
+
+docker-machine create \
+    -d kvm --kvm-memory 4096 --kvm-cpu-count 2 \
+    --swarm \
+    --swarm-discovery="consul://$(docker-machine ip swarm-keystore):8500" \
+    --engine-opt="cluster-store=consul://$(docker-machine ip swarm-keystore):8500" \
+    --engine-opt="cluster-advertise=eth1:2376" \
+    swarm-node-01
+
+docker-machine create \
+    -d kvm --kvm-memory 4096 --kvm-cpu-count 2 \
+    --swarm \
+    --swarm-discovery="consul://$(docker-machine ip swarm-keystore):8500" \
+    --engine-opt="cluster-store=consul://$(docker-machine ip swarm-keystore):8500" \
+    --engine-opt="cluster-advertise=eth1:2376" \
+    swarm-node-02
+```
+
+HDFS config file for Spark in host (file hdfs-site.xml)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+    <property>
+        <name>dfs.client.use.datanode.hostname</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.datanode.use.datanode.hostname</name>
+        <value>true</value>
+    </property>
+</configuration>
+```
 
 ## References
 
