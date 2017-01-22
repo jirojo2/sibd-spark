@@ -51,8 +51,8 @@ $HADOOP_HOME/sbin/start-yarn.sh
 Put data into HDFS
 
 ```bash
-sudo $HADOOP_HOME/bin/hdfs dfs -mkdir -p /user/josi
-sudo $HADOOP_HOME/bin/hdfs dfs -chown josi /user/josi
+$HADOOP_HOME/bin/hdfs dfs -mkdir -p /user/josi
+$HADOOP_HOME/bin/hdfs dfs -chown josi /user/josi
 $HADOOP_HOME/bin/hdfs dfs -put data /user/josi
 ```
 
