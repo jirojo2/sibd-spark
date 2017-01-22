@@ -1,6 +1,6 @@
 version: '2'
 services:
-  master:
+  namenode:
     build: yarn-cluster/
     hostname: namenode
     ports:
@@ -20,10 +20,31 @@ services:
       - '8042:8042'
       - '49707:49707'
     environment:
-      - "constraint:node==swarm-node-01"
+      - "constraint:node==swarm-manager"
   slave1:
     build: yarn-cluster/
     hostname: slave1
+    ports:
+      - '50070:50070'
+      - '9000:9000'
+      - '8088:8088'
+      - '50010:50010'
+      - '50020:50020'
+      - '50075:50075'
+      - '50090:50090'
+      - '19888:19888'
+      - '8030:8030'
+      - '8031:8031'
+      - '8032:8032'
+      - '8033:8033'
+      - '8040:8040'
+      - '8042:8042'
+      - '49707:49707'
+    environment:
+      - "constraint:node==swarm-node-01"
+  slave2:
+    build: yarn-cluster/
+    hostname: slave2
     ports:
       - '50070:50070'
       - '9000:9000'

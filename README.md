@@ -134,7 +134,7 @@ Create swarm cluster:
 
 ```bash
 docker-machine create \
-    -d kvm --kvm-memory 4096 --kvm-cpu-count 2 \
+    -d kvm \
     --swarm --swarm-master \
     --swarm-discovery="consul://$(docker-machine ip swarm-keystore):8500" \
     --engine-opt="cluster-store=consul://$(docker-machine ip swarm-keystore):8500" \
